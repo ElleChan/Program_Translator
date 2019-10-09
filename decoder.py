@@ -6,6 +6,7 @@ def decoder(path):
         print(ifile)
         return json.load(ifile)
 
+
 if __name__ == '__main__':
     home = dirname(realpath(__file__))
     results = decoder(join(home, 'tree2tree_data', 'java2c#', 'antlr-data.json'))
