@@ -16,4 +16,11 @@ print(paths)
 
 # Test ast_parser
 results = ap.parseAST(paths[0])
-print(results)
+#print(results)
+
+# Split datasets
+
+# Train NN
+
+# Run test points.
+

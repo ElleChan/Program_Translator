@@ -14,18 +14,4 @@ def parseAST(path):
     handle.close()
 
     tree_list = json.loads(json_string)
-    #pprint(tree_list[8])
     return tree_list
-
-
-# Takes a tree and returns the encoded vector.
-def encodeTree(tree):
-    pass
-
-# Takes a vector and returns the decoded tree.
-def decodeTree(vector):
-    pass
-
-# Takes an arbitrary AST and converts it to its code string.
-def convertToCode(tree):
-    pass
