@@ -7,13 +7,11 @@ from functools import reduce
 import torch
 import ast_parser as ap
 from os.path import join, realpath
-from pprint import pprint
+import numpy as np
 from encoder import ASTNumbering as ast
-import unicodedata
-import json
-import encodings
-import sys
 
+epochs = 5
+batch_size = 5
 
 print(torch.rand(3, 5))
 
@@ -34,9 +32,17 @@ for tree in all_results:
     cs_language.add_ast(tree['cs_ast'])
     java_language.add_ast(tree['java_ast'])
 
-vector = java_language.create_vector(all_results[0]['java_ast'])
+test = np.random.choice(all_results, size=1000, replace=False)
+for item in test:
+    all_results.remove(item)
 
-for key in vector:
-    print(java_language.convert_back[key])
+print(len(all_results))
+
+print(len(test))
+
+for i in range(epochs):
+    train = np.random.choice(all_results, size=batch_size)
+
+vector = java_language.create_vector(all_results[0]['java_ast'])
 
 exit(0)

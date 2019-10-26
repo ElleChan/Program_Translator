@@ -13,7 +13,7 @@ def parseAST(path):
     json_string = handle.read()
     handle.close()
 
-    tree_list = json.loads(json_string)
+    tree_list = json.loads(json_string.replace(r'\u014d', '\u014d'))
     #pprint(tree_list[8])
     return tree_list
 
