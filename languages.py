@@ -50,7 +50,7 @@ class ASTNumbering:
         return_tree = [0]
         self._get_elements(tree, return_tree)
         return_tree.append(1)
-        return torch.tensor(return_tree, dtype=long).view(-1, 1)
+        return torch.tensor(return_tree, dtype=torch.long).view(-1, 1)
 
     def _get_elements(self, tree, final_list):
         if isinstance(tree, list):
