@@ -49,16 +49,13 @@ class EncoderModel(nn.Module):
          self.layer_count = layer_count
          self.dropout_rate = dropout_rate
 
-       #  self.embedding = nn.Embedding(dim_input, dim_hidden)               # Creates embedding matrix with dim_hidden cols and dim_input/dim_hidden rows.
          self.gru = nn.GRU(dim_input, dim_hidden, dropout=dropout_rate)      # Kind of RNN, akin to LSTM
 
     # Moves the RNN forward to the next iter.
     def forward(self, input_vector, hidden_vector):
-        #embedded = self.embedding(input_vector).view(1,1,-1)                    # Creates embedding matrix and flattens it
         input_vector = input_vector.float()
         hidden_vector = hidden_vector.float()
         output_vector, hidden_vector = self.gru(input_vector.view(1,1,-1), hidden_vector)
-        
         return output_vector, hidden_vector
         
     def initialize_hidden(self):
