@@ -8,6 +8,7 @@ import torch
 import ast_parser as ap
 from os.path import join, realpath
 import numpy as np
+from pprint import pprint
 from encoder import ASTNumbering as ast
 
 epochs = 5
@@ -41,7 +42,9 @@ print(len(all_results))
 print(len(test))
 
 for i in range(epochs):
-    train = np.random.choice(all_results, size=batch_size)
+    train = [java_language.create_vector(x['java_ast']) for
+             x in np.random.choice(all_results, size=batch_size)]
+    pprint(train)
 
 vector = java_language.create_vector(all_results[0]['java_ast'])
 
