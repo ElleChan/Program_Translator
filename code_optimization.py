@@ -11,6 +11,9 @@ from os.path import join, realpath
 import numpy as np
 from pprint import pprint
 from languages import ASTNumbering as ast
+from decoder import DecoderModel
+
+print(torch.cuda.is_available())
 
 epochs = 5
 batch_size = 5
@@ -20,7 +23,6 @@ paths = [join(realpath('.'), 'java2c#', name) for name in paths]
 # Get all trees.
 results = [ap.parseAST(path) for path in paths]
 all_results = reduce(lambda x, y: x + y, results)
-print(len(all_results))
 
 # Generate datasets.
 java_language = ast('Java')
@@ -33,17 +35,15 @@ for tree in all_results:
 test = np.random.choice(all_results, size=1000, replace=False)
 for item in test:
     all_results.remove(item)
-print(len(all_results))
-print(len(test))
 
 with open('temp.txt', 'w') as ofile:
-    e = EncoderModel(24720, 100)
+    e = EncoderModel(24720, 24720, 1)
     h = e.initialize_hidden()
     e.train()
+    output = []
     for i in range(epochs):
         train = [java_language.create_vector(x['java_ast']) for
                    x in np.random.choice(all_results, size=batch_size)]
-        output = []
         for vector in train:
             for point in vector:
                 o, h = e.forward(point, h)
@@ -51,12 +51,12 @@ with open('temp.txt', 'w') as ofile:
 
     e.eval()
     test_vector = test[0]
-    eval_output =
-    for point in java_language.create_vector(test_vector):
-        o, h = e.forward(point, h)
 
-
-
-vector = java_language.create_vector(all_results[0]['java_ast'])
+    decoder = DecoderModel(output[0].size(0), 100)
+    dh = h
+    doutput = []
+    do, dh = decoder.forward(output[0], h)
+    doutput.append(do)
+    pprint(doutput, ofile)
 
 exit(0)
