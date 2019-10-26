@@ -1,5 +1,6 @@
 from collections import namedtuple
 import codecs
+import torch
 import sys
 
 Encoding = namedtuple('Encoding', 'index type')
@@ -10,8 +11,8 @@ class ASTNumbering:
         self.name = name
         self.words = {}
         self.wordcount = {}
-        self.convert_back = {0: 'Start', 1: 'End'}
-        self.count = 2
+        self.convert_back = {0: 'Start', 1: 'End', 2: 'UnicodeCharacter'}
+        self.count = 3
 
     def add_ast(self, tree):
         if isinstance(tree, list):
@@ -29,15 +30,17 @@ class ASTNumbering:
                     self.wordcount[key] += 1
                     self.add_ast(tree[key])
         elif isinstance(tree, str):
+            index = self.count
             try:
                 codecs.charmap_encode(tree)
             except UnicodeEncodeError as err:
-                tree = ''
+                tree = 'UnicodeCharacter'
+                index = 3
             if tree not in self.words:
-                self.words[tree] = Encoding(self.count, None)
+                self.words[tree] = Encoding(index, None)
                 self.wordcount[tree] = 1
-                self.convert_back[self.count] = tree
-                self.count += 1
+                self.convert_back[index] = tree
+                self.count += 1 if index == self.count else 0
             else:
                 self.wordcount[tree] += 1
         else:
@@ -47,7 +50,7 @@ class ASTNumbering:
         return_tree = [0]
         self._get_elements(tree, return_tree)
         return_tree.append(1)
-        return return_tree
+        return torch.tensor(return_tree)
 
     def _get_elements(self, tree, final_list):
         if isinstance(tree, list):
@@ -55,9 +58,16 @@ class ASTNumbering:
                 self._get_elements(subtree, final_list)
         elif isinstance(tree, dict):
             for key in tree.keys():
-                final_list.append(self.words[key][0])
+                if key in self.words:
+                    final_list.append(self.words[key][0])
+                else:
+                    final_list.append(2)
                 self._get_elements(tree[key], final_list)
+
         elif isinstance(tree, str):
-            final_list.append(self.words[tree][0])
+            if tree in self.words:
+                final_list.append(self.words[tree][0])
+            else:
+                final_list.append(2)
         else:
             print(type(tree), file=sys.stderr)
