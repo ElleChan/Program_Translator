@@ -40,7 +40,7 @@ class AstModel:
 #             https://www.kaggle.com/kanncaa1/recurrent-neural-network-with-pytorch
 #             https://towardsdatascience.com/attention-seq2seq-with-pytorch-learning-to-invert-a-sequence-34faf4133e53
 class EncoderModel(nn.Module):
-    def __init__(self, dim_input, dim_hidden, dim_output, layer_count=0, dropout_rate=0.1):
+    def __init__(self, dim_input, dim_hidden, dim_output, layer_count=0, dropout_rate=0.0):
          super(EncoderModel, self).__init__()
 
          self.dim_input = dim_input
@@ -56,6 +56,7 @@ class EncoderModel(nn.Module):
     def forward(self, input_vector, hidden_vector):
         embedded = self.embedding(input_vector).view(1,1,-1)                    # Creates embedding matrix and flattens it
         output_vector, hidden_vector = self.gru(embedded, hidden_vector)
+        
         return output_vector, hidden_vector
         
     def initialize_hidden(self):
@@ -63,14 +64,14 @@ class EncoderModel(nn.Module):
 
 
 if __name__ == '__main__':
-    e = EncoderModel(5, 5, 3, 4)
+    e = EncoderModel(30, 5, 3, 4)
     e.train()
     h0 = e.initialize_hidden()
-    input_v = torch.tensor(['k'])
+    input_v = torch.tensor([1,3,4,5,5,6])
     (output, h0) = e.forward(input_v, h0)
     print(output, "\n", h0)
     e.eval()
     h0 = e.initialize_hidden()
-    input_v = torch.tensor(['k'])
+    input_v = torch.tensor([4,3,7,19,3,6])
     (output, h0) = e.forward(input_v, h0)
     print(output, "\n", h0)
