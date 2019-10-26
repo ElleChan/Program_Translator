@@ -48,6 +48,7 @@ class EncoderModel(nn.Module):
          self.embedding = nn.Embedding(dim_input, dim_hidden)     # Creates embedding matrix.
          self.gru = nn.GRU(dim_hidden, dim_hidden)                 # Kind of RNN, akin to LSTM
 
+    # Moves the RNN forward to the next iter.
     def forward(self, input_vector, hidden_vector):
         embedded = self.embedding(input_vector).view(1, 1, -1)
         output_vector, hidden_vector = self.gru(embedded, hidden_vector)

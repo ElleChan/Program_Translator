@@ -19,20 +19,19 @@ print(torch.rand(3, 5))
 
 paths = ['antlr-data.json', 'itext-data.json', 'jgit-data.json', 'jts-data.json', 'lucene-data.json', 'poi-data.json']
 paths = [join(realpath('.'), 'java2c#', name) for name in paths]
-# Test ast_parser
+
+# Get all trees.
 results = [ap.parseAST(path) for path in paths]
-
 all_results = reduce(lambda x, y: x + y, results)
-
 print(len(all_results))
 
+# Generate datasets.
 java_language = ast('Java')
-
 cs_language = ast('CS')
-
 for tree in all_results:
     cs_language.add_ast(tree['cs_ast'])
     java_language.add_ast(tree['java_ast'])
+
 
 test = np.random.choice(all_results, size=1000, replace=False)
 for item in test:
@@ -43,7 +42,7 @@ print(len(all_results))
 print(len(test))
 
 with open('temp.txt', 'w') as ofile:
-    e = EncoderModel(1000000, 1, 0, 0)
+    e = EncoderModel(16996, 62426, 0, 0)
     h = e.initialize_hidden()
     for i in range(epochs):
         train = [torch.tensor(java_language.create_vector(x['java_ast'])) for
