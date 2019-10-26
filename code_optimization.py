@@ -42,9 +42,11 @@ print(len(all_results))
 print(len(test))
 
 for i in range(epochs):
-    train = [java_language.create_vector(x['java_ast']) for
+    train = [torch.tensor(java_language.create_vector(x['java_ast'])) for
              x in np.random.choice(all_results, size=batch_size)]
-    pprint(train)
+    
+    print(train)
+
 
 vector = java_language.create_vector(all_results[0]['java_ast'])
 
