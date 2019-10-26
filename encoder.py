@@ -1,63 +1,67 @@
-from collections import namedtuple
-import codecs
-import sys
+import ast_parser as ap
+import torch
+from torch import nn
+from functools import reduce
+from languages import ASTNumbering
+from numpy.random import choice
 
-Encoding = namedtuple('Encoding', 'index type')
 
-
-class ASTNumbering:
-    def __init__(self, name):
-        self.name = name
-        self.words = {}
-        self.wordcount = {}
-        self.convert_back = {0 : 'Start', 1  : 'end'}
-        self.count = 2
-
-    def add_ast(self, tree):
-        if isinstance(tree, list):
-            for element in tree:
-                self.add_ast(element)
-        elif isinstance(tree, dict):
-            for key in tree.keys():
-                if key not in self.words:
-                    self.words[key] = Encoding(self.count, type(tree[key]))
-                    self.wordcount[key] = 1
-                    self.convert_back[self.count] = key
-                    self.count += 1
-                    self.add_ast(tree[key])
-                else:
-                    self.wordcount[key] += 1
-                    self.add_ast(tree[key])
-        elif isinstance(tree, str):
-            try:
-                codecs.charmap_encode(tree)
-            except UnicodeEncodeError as err:
-                tree = ''
-            if tree not in self.words:
-                self.words[tree] = Encoding(self.count, None)
-                self.wordcount[tree] = 1
-                self.convert_back[self.count] = tree
-                self.count += 1
-            else:
-                self.wordcount[tree] += 1
+class AstModel:
+    def __init__(self, paths):
+        if isinstance(paths, str):
+            self.data = ap.parseAST(paths)
         else:
-            print(type(tree))
+            self.data = [ap.parseAST(x) for x in paths]
+            self.data = reduce(lambda x, y: x + y, self.data)
+        self.java_language = ASTNumbering('Java')
+        self.cs_language = ASTNumbering('C#')
+        for tree in self.data:
+            self.java_language.add_ast(tree['java_ast'])
+            self.cs_language.add_ast(tree['cs_ast'])
 
-    def create_vector(self, tree):
-        return_tree = [0]
-        self._get_elements(tree, return_tree)
-        return_tree.append(1)
-        return return_tree
+    def train(self, train_data, epocs, batch_size):
+        for _ in range(epocs):
+            for _ in range(batch_size):
+                train = choice(train_data, batch_size)
+                self._prepare_data(train['java_ast'])
 
-    def _get_elements(self, tree, final_list):
-        if isinstance(tree, list):
-            for subtree in tree:
-                self._get_elements(subtree, final_list)
-        elif isinstance(tree, dict):
-            for key in tree.keys():
-                final_list.append(self.words[key][0])
-                self._get_elements(tree[key], final_list)
-        elif isinstance(tree, str):
-            final_list.append(self.words[tree][0])
-        else:
-            print(type(tree), file=sys.stderr)
+
+    def predict(self, data):
+        pass
+
+    def _prepare_data(self, data):
+        return self.java_language.create_vector(data)
+
+
+# Encoder NN to predict encoding for source tree.
+# Referenced: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
+#              https://www.kaggle.com/kanncaa1/recurrent-neural-network-with-pytorch
+class EncoderModel(nn.Module):
+    def __init__(self, dim_input, dim_hidden, dim_layer=0, dim_output=0):
+         super(EncoderModel, self).__init__()
+
+         self.dim_input = dim_input
+         self.dim_hidden = dim_hidden
+         self.dim_layer = dim_layer
+         self.dim_output = dim_output
+
+         self.embedding = nn.Embedding(dim_input, dim_hidden)     # Creates embedding matrix.
+         self.gru = nn.GRU(dim_hidden, dim_hidden)                 # Kind of RNN, akin to LSTM
+
+    def forward(self, input_vector, hidden_vector):
+        embedded = self.embedding(input_vector).view(1, 1, -1)
+        output_vector, hidden_vector = self.gru(embedded, hidden_vector)
+        return output_vector, hidden_vector
+        
+    def initialize_hidden(self):
+        return torch.zeros(1, 1, self.dim_hidden)           # 3D matrix with 1 matrix of dim_hidden items.
+
+
+if __name__ == '__main__':
+    e = EncoderModel(12, 10, 3, 4)
+    h0 = e.initialize_hidden()
+    input_v = torch.tensor([3])
+    (output, h0) = e.forward(input_v, h0)
+    input_v = torch.tensor([11])
+    (output, h0) = e.forward(input_v, h0)
+    print(output, '\n', h0)
