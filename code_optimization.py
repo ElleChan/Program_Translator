@@ -29,13 +29,11 @@ for tree in all_results:
     cs_language.add_ast(tree['cs_ast'])
     java_language.add_ast(tree['java_ast'])
 
-
+# Split training and test sets.
 test = np.random.choice(all_results, size=1000, replace=False)
 for item in test:
     all_results.remove(item)
-
 print(len(all_results))
-
 print(len(test))
 
 with open('temp.txt', 'w') as ofile:
