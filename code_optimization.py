@@ -39,7 +39,7 @@ print(len(test))
 
 # Train and evaluate.
 with open('temp.txt', 'w') as ofile:
-    e = EncoderModel(24721, 24721, 24721)
+    e = EncoderModel(1, 1, 1)
     h = e.initialize_hidden()
     objective_func = nn.NLLLoss()       # Negative Log Likelihood Loss.
     e.train()
@@ -48,14 +48,20 @@ with open('temp.txt', 'w') as ofile:
     for i in range(epochs):
         train = [java_language.create_vector(x['java_ast']) for
                    x in np.random.choice(all_results, size=batch_size)]     # Create subset of training set for actual training.
-        print(train)
+       # print(train)
 
         # Train encoder.
         output_e = []
         for vector in train:
+            output = []
             for point in vector:
                 o, h = e.forward(point, h)
+                output.append(o)
+            if len(output) > 0:
+                output_e.append(output)
+            else:
                 output_e.append(o)
+            
         print(output_e)
         
         # Train decoder.
