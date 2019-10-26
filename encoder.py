@@ -38,15 +38,15 @@ class AstModel:
 #              https://www.kaggle.com/kanncaa1/recurrent-neural-network-with-pytorch
 class EncoderModel(nn.Module):
     def __init__(self, dim_input, dim_hidden, dim_layer=0, dim_output=0):
-         super(EncoderModel, self).__init__()
+        super(EncoderModel, self).__init__()
 
-         self.dim_input = dim_input
-         self.dim_hidden = dim_hidden
-         self.dim_layer = dim_layer
-         self.dim_output = dim_output
+        self.dim_input = dim_input
+        self.dim_hidden = dim_hidden
+        self.dim_layer = dim_layer
+        self.dim_output = dim_output
 
-         self.embedding = nn.Embedding(dim_input, dim_hidden)     # Creates embedding matrix.
-         self.gru = nn.GRU(dim_hidden, dim_hidden)                 # Kind of RNN, akin to LSTM
+        self.embedding = nn.Embedding(dim_input, dim_hidden)     # Creates embedding matrix.
+        self.gru = nn.GRU(dim_hidden, dim_hidden)                 # Kind of RNN, akin to LSTM
 
     # Moves the RNN forward to the next iter.
     def forward(self, input_vector, hidden_vector):
