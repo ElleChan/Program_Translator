@@ -10,9 +10,11 @@ class AstModel:
     def __init__(self, paths):
         if isinstance(paths, str):
             self.data = ap.parseAST(paths)
-        else:
+        elif isinstance(paths, list):
             self.data = [ap.parseAST(x) for x in paths]
             self.data = reduce(lambda x, y: x + y, self.data)
+        else:
+            raise TypeError('AstModel() expects a string or a list')
         self.java_language = ASTNumbering('Java')
         self.cs_language = ASTNumbering('C#')
         for tree in self.data:
