@@ -57,7 +57,7 @@ with open('temp.txt', 'w') as ofile:
             for point in vector:
                 o, h = e.forward(point, h)
                 output.append(o)
-            if len(output) > 0:
+            if len(output) > 1:
                 output_e.append(output)
             else:
                 output_e.append(o)
