@@ -35,34 +35,40 @@ class AstModel:
 
 # Encoder NN to predict encoding for source tree.
 # Referenced: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
-#              https://www.kaggle.com/kanncaa1/recurrent-neural-network-with-pytorch
+#             https://www.kaggle.com/kanncaa1/recurrent-neural-network-with-pytorch
+#             https://towardsdatascience.com/attention-seq2seq-with-pytorch-learning-to-invert-a-sequence-34faf4133e53
 class EncoderModel(nn.Module):
-    def __init__(self, dim_input, dim_hidden, dim_layer=0, dim_output=0):
+    def __init__(self, dim_input, dim_hidden, dim_output, layer_count=0, dropout_rate=0.1):
          super(EncoderModel, self).__init__()
 
          self.dim_input = dim_input
          self.dim_hidden = dim_hidden
-         self.dim_layer = dim_layer
          self.dim_output = dim_output
+         self.layer_count = layer_count
+         self.dropout_rate = dropout_rate
 
-         self.embedding = nn.Embedding(dim_input, dim_hidden)     # Creates embedding matrix.
-         self.gru = nn.GRU(dim_hidden, dim_hidden)                 # Kind of RNN, akin to LSTM
+         self.embedding = nn.Embedding(dim_input, dim_hidden)               # Creates embedding matrix with dim_hidden cols and dim_input/dim_hidden rows.
+         self.gru = nn.GRU(dim_input, dim_hidden, dropout=dropout_rate)      # Kind of RNN, akin to LSTM
 
     # Moves the RNN forward to the next iter.
     def forward(self, input_vector, hidden_vector):
-        embedded = self.embedding(input_vector).view(1, 1, -1)
+        embedded = self.embedding(input_vector).view(1,1,-1)                    # Creates embedding matrix and flattens it
         output_vector, hidden_vector = self.gru(embedded, hidden_vector)
         return output_vector, hidden_vector
         
     def initialize_hidden(self):
-        return torch.zeros(1, 1, self.dim_hidden)           # 3D matrix with 1 matrix of dim_hidden items.
+        h =  torch.zeros(1, 1, self.dim_hidden)                               # Flattened 3D matrix of dim_hidden items.
 
 
 if __name__ == '__main__':
-    e = EncoderModel(12, 10, 3, 4)
+    e = EncoderModel(5, 5, 3, 4)
+    e.train()
     h0 = e.initialize_hidden()
-    input_v = torch.tensor([3])
+    input_v = torch.tensor(['k'])
     (output, h0) = e.forward(input_v, h0)
-    input_v = torch.tensor([11])
+    print(output, "\n", h0)
+    e.eval()
+    h0 = e.initialize_hidden()
+    input_v = torch.tensor(['k'])
     (output, h0) = e.forward(input_v, h0)
-    print(output, '\n', h0)
+    print(output, "\n", h0)

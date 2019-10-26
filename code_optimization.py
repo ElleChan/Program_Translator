@@ -32,17 +32,15 @@ for tree in all_results:
     cs_language.add_ast(tree['cs_ast'])
     java_language.add_ast(tree['java_ast'])
 
-
+# Split training and test sets.
 test = np.random.choice(all_results, size=1000, replace=False)
 for item in test:
     all_results.remove(item)
-
 print(len(all_results))
-
 print(len(test))
 
 with open('temp.txt', 'w') as ofile:
-    e = EncoderModel(16996, 62426, 0, 0)
+    e = EncoderModel(13000, 2, 0, 0)
     h = e.initialize_hidden()
     for i in range(epochs):
         train = [torch.tensor(java_language.create_vector(x['java_ast'])) for
