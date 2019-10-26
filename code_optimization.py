@@ -6,6 +6,7 @@ from functools import reduce
 
 import torch
 import ast_parser as ap
+from ast_model import EncoderModel
 from os.path import join, realpath
 import numpy as np
 from pprint import pprint
@@ -41,10 +42,19 @@ print(len(all_results))
 
 print(len(test))
 
+e = EncoderModel(1000, 100, 0, 0)
+h = e.initialize_hidden()
 for i in range(epochs):
     train = [java_language.create_vector(x['java_ast']) for
              x in np.random.choice(all_results, size=batch_size)]
     pprint(train)
+
+    output = []
+    for point in train:
+        o, h = e.forward(point, h)
+        output.append(o)
+    print(output)
+
 
 vector = java_language.create_vector(all_results[0]['java_ast'])
 
