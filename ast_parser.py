@@ -13,19 +13,5 @@ def parseAST(path):
     json_string = handle.read()
     handle.close()
 
-    tree_list = json.loads(json_string.replace(r'\u014d', '\u014d'))
-    #pprint(tree_list[8])
+    tree_list = json.loads(json_string)
     return tree_list
-
-
-# Takes a tree and returns the encoded vector.
-def encodeTree(tree):
-    pass
-
-# Takes a vector and returns the decoded tree.
-def decodeTree(vector):
-    pass
-
-# Takes an arbitrary AST and converts it to its code string.
-def convertToCode(tree):
-    pass
