@@ -48,7 +48,7 @@ with open('temp.txt', 'w') as ofile:
     for i in range(epochs):
         train = [java_language.create_vector(x['java_ast']) for
                    x in np.random.choice(all_results, size=batch_size)]     # Create subset of training set for actual training.
-       # print(train)
+        print(train)
 
         # Train encoder.
         output_e = []

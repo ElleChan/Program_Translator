@@ -5,7 +5,7 @@ import sys
 
 Encoding = namedtuple('Encoding', 'index type')
 
-
+# Referenced: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
 class ASTNumbering:
     def __init__(self, name):
         self.name = name
