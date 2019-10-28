@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 
 
@@ -9,6 +9,7 @@ from torch import nn
 # Referenced: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
 #             https://www.kaggle.com/kanncaa1/recurrent-neural-network-with-pytorch
 #             https://towardsdatascience.com/attention-seq2seq-with-pytorch-learning-to-invert-a-sequence-34faf4133e53
+#             https://github.com/IBM/pytorch-seq2seq/
 class EncoderModel(nn.Module):
     def __init__(self, dim_input, dim_hidden, dim_output, layer_count=0, dropout_rate=0.0):
         super(EncoderModel, self).__init__()
