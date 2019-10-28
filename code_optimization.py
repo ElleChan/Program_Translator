@@ -68,12 +68,13 @@ with open('temp.txt', 'w') as ofile:
 
     e.eval()
     test_vector = output_e[0]
-    decoder = DecoderModel(1, 100)
+    decoder = DecoderModel(1, 1)
     dh = h
     output_d = []
     decoder.train()
-    for point in o:
-        while isinstance(point.item(), torch.FloatTensor):
+    for point in test_vector:
+        print(point.dim())
+        while point.dim() > 3:
             point = point.item()
         print(point)
         o, dh = decoder.forward(point, dh)
