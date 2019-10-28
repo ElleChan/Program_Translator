@@ -4,6 +4,7 @@ import torch.nn.functional as F
 
 
 # Reference: https://github.com/IBM/pytorch-seq2seq/
+#            https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
 class DecoderModel(nn.Module):
     def __init__(self, output_size, hidden_size):
         super(DecoderModel, self).__init__()
