@@ -1,38 +1,8 @@
-import ast_parser as ap
 import torch
 from torch import nn
-from functools import reduce
-from languages import ASTNumbering
-from numpy.random import choice
 
 
-class AstModel:
-    def __init__(self, paths):
-        if isinstance(paths, str):
-            self.data = ap.parseAST(paths)
-        elif isinstance(paths, list):
-            self.data = [ap.parseAST(x) for x in paths]
-            self.data = reduce(lambda x, y: x + y, self.data)
-        else:
-            raise TypeError('AstModel() expects a string or a list')
-        self.java_language = ASTNumbering('Java')
-        self.cs_language = ASTNumbering('C#')
-        for tree in self.data:
-            self.java_language.add_ast(tree['java_ast'])
-            self.cs_language.add_ast(tree['cs_ast'])
 
-    def train(self, train_data, epocs, batch_size):
-        for _ in range(epocs):
-            for _ in range(batch_size):
-                train = choice(train_data, batch_size)
-                self._prepare_data(train['java_ast'])
-
-
-    def predict(self, data):
-        pass
-
-    def _prepare_data(self, data):
-        return self.java_language.create_vector(data)
 
 
 # Encoder NN to predict encoding for source tree.
@@ -41,15 +11,16 @@ class AstModel:
 #             https://towardsdatascience.com/attention-seq2seq-with-pytorch-learning-to-invert-a-sequence-34faf4133e53
 class EncoderModel(nn.Module):
     def __init__(self, dim_input, dim_hidden, dim_output, layer_count=0, dropout_rate=0.0):
-         super(EncoderModel, self).__init__()
+        super(EncoderModel, self).__init__()
 
-         self.dim_input = dim_input
-         self.dim_hidden = dim_hidden
-         self.dim_output = dim_output
-         self.layer_count = layer_count
-         self.dropout_rate = dropout_rate
+        self.dim_input = dim_input
+        self.dim_hidden = dim_hidden
+        self.dim_output = dim_output
+        self.layer_count = layer_count
+        self.dropout_rate = dropout_rate
 
-         self.gru = nn.GRU(dim_input, dim_hidden, dropout=dropout_rate)      # Kind of RNN, akin to LSTM
+        self.embedding = nn.Embedding(dim_input, dim_hidden)
+        self.gru = nn.GRU(dim_input, dim_hidden, dropout=dropout_rate)      # Kind of RNN, akin to LSTM
 
     # Moves the RNN forward to the next iter.
     def forward(self, input_vector, hidden_vector):
