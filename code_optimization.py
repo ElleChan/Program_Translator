@@ -11,6 +11,7 @@ from encoder import EncoderModel
 from os.path import join, realpath
 import numpy as np
 from pprint import pprint
+from decoder import DecoderModel
 from languages import ASTNumbering as ast
 
 epochs = 1
@@ -62,16 +63,24 @@ with open('temp.txt', 'w') as ofile:
             else:
                 output_e.append(o)
             
-        print(output_e)
-        
         # Train decoder.
         
 
     e.eval()
-    test_vector = test[0]
-    #eval_output =
-    for point in java_language.create_vector(test_vector):
-        o, h = e.forward(point, h)
+    test_vector = output_e[0]
+    decoder = DecoderModel(1, 1)
+    dh = h
+    output_d = []
+    decoder.train()
+    for point in test_vector:
+        print(point.dim())
+        while point.dim() > 3:
+            point = point.item()
+        print(point)
+        o, dh = decoder.forward(point, dh)
+        output_d.append(o)
+    print(output_d)
+    decoder.eval()
 
 
 
