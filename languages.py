@@ -5,7 +5,7 @@ import sys
 
 Encoding = namedtuple('Encoding', 'index type')
 
-
+#model transformer
 class ASTNumbering:
     def __init__(self, name):
         self.name = name

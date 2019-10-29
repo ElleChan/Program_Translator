@@ -23,7 +23,6 @@ paths = [join(realpath('.'), 'java2c#', name) for name in paths]
 # Get all trees.
 results = [ap.parseAST(path) for path in paths]
 all_results = reduce(lambda x, y: x + y, results)
-print(len(all_results))
 
 # Generate datasets.
 java_language = ast('Java')
@@ -55,9 +54,7 @@ with open('temp.txt', 'w') as ofile:
         for i in range(batch_size):
             input_vector[i, :len(train[i][0])] = train[i][0]
         # Train encoder.
-        print(input_vector.size())
         output = []
-        print(h.size())
         o, h = e.forward(input_vector, h, lengths)
         output.append(o)
         if len(output) > 1:
@@ -68,22 +65,19 @@ with open('temp.txt', 'w') as ofile:
         # Train decoder.
         
     print(output_e)
-    #e.eval()
-    #test_vector = output_e
-    #decoder = DecoderModel(1, 1)
-    #dh = h
-    #output_d = []
-    #decoder.train()
-    #for vector in output_e:
-    #    for point in test_vector:
-    #        print(point.dim())
-    #        while point.dim() > 3:
-    #            point = point.item()
-    #         print(point)
-    #         o, dh = decoder.forward(point, dh)
-    #         output_d.append(o)
-    # print(output_d)
-    # decoder.eval()
+    e.eval()
+
+    #Train decoder using input from the encoder
+    test_vector = output_e
+    decoder = DecoderModel(java_language.count, java_language.count)
+    decoder_hidden = h
+    output_d = []
+    decoder.train()
+    for vector in output_e:
+        o, decoder_hidden = decoder.forward(vector, decoder_hidden, lengths)
+        output_d.append(o)
+    print(output_d)
+    decoder.eval()
 
 
 

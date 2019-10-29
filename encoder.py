@@ -27,9 +27,8 @@ class EncoderModel(nn.Module):
     def forward(self, input_vector, hidden_vector, shape):
         embedded = self.embedding(input_vector)
         embedded = pack_padded_sequence(embedded, shape, enforce_sorted=False, batch_first=True)
-        print(embedded)
         output_vector, hidden_vector = self.gru(embedded, hidden_vector)
-        output_vector, _ = pad_packed_sequence(output_vector)
+        output_vector, _ = pad_packed_sequence(output_vector, batch_first=True)
         return output_vector, hidden_vector
         
     def initialize_hidden(self):
