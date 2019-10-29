@@ -5,7 +5,7 @@ import sys
 
 Encoding = namedtuple('Encoding', 'index type')
 
-# Referenced: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
+
 class ASTNumbering:
     def __init__(self, name):
         self.name = name
@@ -50,7 +50,8 @@ class ASTNumbering:
         return_tree = [0]
         self._get_elements(tree, return_tree)
         return_tree.append(1)
-        return torch.tensor(return_tree)
+        length = len(return_tree)
+        return torch.tensor(return_tree), length
 
     def _get_elements(self, tree, final_list):
         if isinstance(tree, list):

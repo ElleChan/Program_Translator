@@ -24,10 +24,12 @@ class EncoderModel(nn.Module):
         self.gru = nn.GRU(dim_input, dim_hidden, dropout=dropout_rate)      # Kind of RNN, akin to LSTM
 
     # Moves the RNN forward to the next iter.
-    def forward(self, input_vector, hidden_vector):
-        input_vector = input_vector.float()
-        hidden_vector = hidden_vector.float()
-        output_vector, hidden_vector = self.gru(input_vector.view(1,1,-1), hidden_vector)
+    def forward(self, input_vector, hidden_vector, shape):
+        embedded = self.embedding(input_vector)
+        embedded = pack_padded_sequence(embedded, shape, enforce_sorted=False, batch_first=True)
+        print(embedded)
+        output_vector, hidden_vector = self.gru(embedded, hidden_vector)
+        output_vector, _ = pad_packed_sequence(output_vector)
         return output_vector, hidden_vector
         
     def initialize_hidden(self):

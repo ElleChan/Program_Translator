@@ -14,6 +14,7 @@ from pprint import pprint
 from decoder import DecoderModel
 from languages import ASTNumbering as ast
 
+
 epochs = 1
 batch_size = 1
 paths = ['antlr-data.json', 'itext-data.json', 'jgit-data.json', 'jts-data.json', 'lucene-data.json', 'poi-data.json']
@@ -35,52 +36,54 @@ for tree in all_results:
 test = np.random.choice(all_results, size=1000, replace=False)
 for item in test:
     all_results.remove(item)
-print(len(all_results))
-print(len(test))
+all_results = np.array(all_results)
 
 # Train and evaluate.
 with open('temp.txt', 'w') as ofile:
-    e = EncoderModel(1, 1, 1)
+    e = EncoderModel(java_language.count, java_language.count, 1)
     h = e.initialize_hidden()
     objective_func = nn.NLLLoss()       # Negative Log Likelihood Loss.
     e.train()
-
+    output_e = []
     # Train.
     for i in range(epochs):
         train = [java_language.create_vector(x['java_ast']) for
                    x in np.random.choice(all_results, size=batch_size)]     # Create subset of training set for actual training.
-        print(train)
-
+        lengths = torch.Tensor([x[1] for x in train])
+        input_vector = torch.zeros(batch_size, java_language.count, dtype=torch.long) # Create a tensor that can hold all the values
+        #Fills the input vector with the tensor values calculated above.
+        for i in range(batch_size):
+            input_vector[i, :len(train[i][0])] = train[i][0]
         # Train encoder.
-        output_e = []
-        for vector in train:
-            output = []
-            for point in vector:
-                o, h = e.forward(point, h)
-                output.append(o)
-            if len(output) > 1:
-                output_e.append(output)
-            else:
-                output_e.append(o)
+        print(input_vector.size())
+        output = []
+        print(h.size())
+        o, h = e.forward(input_vector, h, lengths)
+        output.append(o)
+        if len(output) > 1:
+            output_e.append(output)
+        else:
+            output_e.append(o)
             
         # Train decoder.
         
-
-    e.eval()
-    test_vector = output_e[0]
-    decoder = DecoderModel(1, 1)
-    dh = h
-    output_d = []
-    decoder.train()
-    for point in test_vector:
-        print(point.dim())
-        while point.dim() > 3:
-            point = point.item()
-        print(point)
-        o, dh = decoder.forward(point, dh)
-        output_d.append(o)
-    print(output_d)
-    decoder.eval()
+    print(output_e)
+    #e.eval()
+    #test_vector = output_e
+    #decoder = DecoderModel(1, 1)
+    #dh = h
+    #output_d = []
+    #decoder.train()
+    #for vector in output_e:
+    #    for point in test_vector:
+    #        print(point.dim())
+    #        while point.dim() > 3:
+    #            point = point.item()
+    #         print(point)
+    #         o, dh = decoder.forward(point, dh)
+    #         output_d.append(o)
+    # print(output_d)
+    # decoder.eval()
 
 
 
