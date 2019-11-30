@@ -32,7 +32,7 @@ class ASTNumbering:
                     count += self.add_ast(tree[key])
                 else:
                     self.wordcount[key] += 1
-                    self.add_ast(tree[key])
+                    count += self.add_ast(tree[key])
         elif isinstance(tree, str):
             index = self.count
             count += 1
