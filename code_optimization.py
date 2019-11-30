@@ -41,8 +41,6 @@ for tree in all_results:
 	cs_tree, cs_length = cs_language.create_vector(tree['cs_ast'])
 	java_tree, java_length = java_language.create_vector(tree['java_ast'])
 	dataset.append({'cs_ast': cs_tree, 'java_ast': java_tree})
-print(dataset)
-exit()
 
 # Split training and test sets.
 print("Shuffling and splitting dataset for training and testing.")
@@ -50,6 +48,7 @@ np.random.shuffle(dataset)
 train, test = np.split(dataset, np.array([-1000]))
 
 # Train and evaluate.
+print("Training Encoder-Decoder")
 with open('temp.txt', 'w') as ofile:
     e = EncoderModel(java_language.max_length, 10, java_language.count)			# Create encoder object.
     h = e.initialize_hidden()								# Create initial hidden input.
@@ -57,28 +56,28 @@ with open('temp.txt', 'w') as ofile:
     
     # Start training phase.
     e.train()
-    output_e = []
+   
     for i in range(epochs):
-        train = [java_language.create_vector(x['java_ast']) for
-                   x in np.random.choice(all_results, size=batch_size)]     		# Create subset of training set for actual training.
-        lengths = torch.Tensor([x[1] for x in train])
-    
-	# Padding input vectors.
-        input_vector = torch.zeros(batch_size, java_language.max_length, dtype=torch.long) # Create a tensor that can hold all the values
-        for i in range(batch_size):
-            input_vector[i, :len(train[i][0])] = train[i][0]
+        print("\tEpoch:", i)
+        batch = np.random.choice(train, size=batch_size) 		    		# Create subset of training set for actual training.
+	
         # Train encoder.
-        output = []
-        o, h = e.forward(input_vector, h, lengths)
-        output.append(o)
-        if len(output) > 1:
-            output_e.append(output)
-        else:
-            output_e.append(o)
-            
+	outputs = np.zeros(batch_size)
+        for b in batch_size:
+             data_point = batch[b]
+             input_vector = data_point['java_ast']
+             input_vector = input_vector.long()
+             o, h = e.forward(input_vector, h, java_language.max_length)
+             print(input_vector, "->", o)
+             
+             outputs[b] = o
+
         # Train decoder.
-        
+	  
+ 
     print(output_e)
+    exit()    
+
     e.eval()
 
     #Train decoder using input from the encoder
