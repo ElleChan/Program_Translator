@@ -17,40 +17,58 @@ from languages import ASTNumbering as ast
 
 epochs = 1
 batch_size = 1
+
 paths = ['antlr-data.json', 'itext-data.json', 'jgit-data.json', 'jts-data.json', 'lucene-data.json', 'poi-data.json']
 paths = [join(realpath('.'), 'java2c#', name) for name in paths]
 
 # Get all trees.
+print("Getting all the trees")
 results = [ap.parseAST(path) for path in paths]
 all_results = reduce(lambda x, y: x + y, results)
 
 # Generate datasets.
+print("Creating tree classes...")
 java_language = ast('Java')
 cs_language = ast('CS')
 for tree in all_results:
     cs_language.add_ast(tree['cs_ast'])
     java_language.add_ast(tree['java_ast'])
 
+# Create numerical input vectors.
+print("Converting trees to numerical vectors...")
+dataset = []
+for tree in all_results:
+	cs_tree, cs_length = cs_language.create_vector(tree['cs_ast'])
+	java_tree, java_length = java_langage.create_vector(tree['java_ast'])
+	print(cs_tree, java_tree)
+	exit()
+
 # Split training and test sets.
-test = np.random.choice(all_results, size=1000, replace=False)
-for item in test:
-    all_results.remove(item)
-all_results = np.array(all_results)
+print("Shuffling and splitting dataset for training and testing.")
+np.random.shuffle(all_results)
+train, test = np.split(all_results, np.array([1000]))
+
+#test = np.random.choice(all_results, size=1000, replace=False)
+#for item in test:
+#    all_results.remove(item)
+#all_results = np.array(all_results)
 
 # Train and evaluate.
 with open('temp.txt', 'w') as ofile:
-    e = EncoderModel(java_language.count, java_language.count, 1)
-    h = e.initialize_hidden()
-    objective_func = nn.NLLLoss()       # Negative Log Likelihood Loss.
+    e = EncoderModel(java_language.max_length, 10, java_language.count)			# Create encoder object.
+    h = e.initialize_hidden()								# Create initial hidden input.
+    objective_func = nn.NLLLoss()       						# Negative Log Likelihood Loss.
+    
+    # Start training phase.
     e.train()
     output_e = []
-    # Train.
     for i in range(epochs):
         train = [java_language.create_vector(x['java_ast']) for
-                   x in np.random.choice(all_results, size=batch_size)]     # Create subset of training set for actual training.
+                   x in np.random.choice(all_results, size=batch_size)]     		# Create subset of training set for actual training.
         lengths = torch.Tensor([x[1] for x in train])
-        input_vector = torch.zeros(batch_size, java_language.count, dtype=torch.long) # Create a tensor that can hold all the values
-        #Fills the input vector with the tensor values calculated above.
+    
+	# Padding input vectors.
+        input_vector = torch.zeros(batch_size, java_language.max_length, dtype=torch.long) # Create a tensor that can hold all the values
         for i in range(batch_size):
             input_vector[i, :len(train[i][0])] = train[i][0]
         # Train encoder.
