@@ -20,19 +20,19 @@ class EncoderModel(nn.Module):
         self.layer_count = layer_count
         self.dropout_rate = dropout_rate
 
-        self.embedding = nn.Embedding(dim_input, dim_hidden)
-        self.gru = nn.GRU(dim_input, dim_hidden, dropout=dropout_rate)      # Kind of RNN, akin to LSTM
+        self.embedding = nn.Embedding(dim_output, dim_input)
+        self.gru = nn.GRU(dim_input, dim_hidden, batch_first=True, dropout=dropout_rate)      # Kind of RNN, akin to LSTM
 
     # Moves the RNN forward to the next iter.
     def forward(self, input_vector, hidden_vector, shape):
         embedded = self.embedding(input_vector)
-        embedded = pack_padded_sequence(embedded, shape, enforce_sorted=False, batch_first=True)
+        #embedded = pack_padded_sequence(embedded, shape, enforce_sorted=False, batch_first=True)
         output_vector, hidden_vector = self.gru(embedded, hidden_vector)
-        output_vector, _ = pad_packed_sequence(output_vector, batch_first=True)
+        #output_vector, _ = pad_packed_sequence(output_vector, batch_first=True)
         return output_vector, hidden_vector
         
     def initialize_hidden(self):
-        return torch.zeros(1, 1, self.dim_hidden)                               # Flattened 3D matrix of dim_hidden items.
+        return torch.zeros(1, 1, self.dim_hidden)                               # 1, batch_size, hidden_size
 
 
 if __name__ == '__main__':
