@@ -40,18 +40,14 @@ dataset = []
 for tree in all_results:
 	cs_tree, cs_length = cs_language.create_vector(tree['cs_ast'])
 	java_tree, java_length = java_language.create_vector(tree['java_ast'])
-	print(cs_tree, "\n\n", java_tree)
-	exit()
+	dataset.append({'cs_ast': cs_tree, 'java_ast': java_tree})
+print(dataset)
+exit()
 
 # Split training and test sets.
 print("Shuffling and splitting dataset for training and testing.")
-np.random.shuffle(all_results)
-train, test = np.split(all_results, np.array([-1000]))
-
-#test = np.random.choice(all_results, size=1000, replace=False)
-#for item in test:
-#    all_results.remove(item)
-#all_results = np.array(all_results)
+np.random.shuffle(dataset)
+train, test = np.split(dataset, np.array([-1000]))
 
 # Train and evaluate.
 with open('temp.txt', 'w') as ofile:
