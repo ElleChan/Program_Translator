@@ -63,20 +63,18 @@ with open('temp.txt', 'w') as ofile:
         batch = np.random.choice(train, size=batch_size) 		    		# Create subset of training set for actual training.
 	
         # Train encoder.
-        outputs = np.zeros(batch_size)
-        for b in batch_size:
-             data_point = batch[b]
+        outputs = []
+        for data_point in batch:
              input_vector = data_point['java_ast']
              input_vector = input_vector.long()
              o, h = e.forward(input_vector, h, java_language.max_length)
              print(input_vector, "->", o)
              
-             outputs[b] = o
+             outputs.append(o)
 
         # Train decoder.
 	
  
-    print(output_e)
     exit()    
 
 
