@@ -60,7 +60,7 @@ class ASTNumbering:
         return_tree.append(1)
         length = len(return_tree)
         if(length > self.max_length):
-            raise ArgumentError('{} > {}'.format(length, self.max_length)
+            raise ArgumentError('{} > {}'.format(length, self.max_length))
         final_tree = torch.zeros(1, self.max_length)
         for i in range(length):
             final_tree[0, i] = return_tree[i]
