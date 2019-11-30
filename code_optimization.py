@@ -51,6 +51,7 @@ train, test = np.split(dataset, np.array([-1000]))
 print("Training Encoder-Decoder")
 with open('temp.txt', 'w') as ofile:
     e = EncoderModel(java_language.max_length, 10, java_language.count)			# Create encoder object.
+    #d = DecoderModel()
     h = e.initialize_hidden()								# Create initial hidden input.
     objective_func = nn.NLLLoss()       						# Negative Log Likelihood Loss.
     
@@ -62,7 +63,7 @@ with open('temp.txt', 'w') as ofile:
         batch = np.random.choice(train, size=batch_size) 		    		# Create subset of training set for actual training.
 	
         # Train encoder.
-	outputs = np.zeros(batch_size)
+        outputs = np.zeros(batch_size)
         for b in batch_size:
              data_point = batch[b]
              input_vector = data_point['java_ast']
@@ -73,27 +74,15 @@ with open('temp.txt', 'w') as ofile:
              outputs[b] = o
 
         # Train decoder.
-	  
+	
  
     print(output_e)
     exit()    
 
+
+    print("Testing Encoder-Decoder")
     e.eval()
 
-    #Train decoder using input from the encoder
-    test_vector = output_e
-    decoder = DecoderModel(java_language.count, java_language.count)
-    decoder_hidden = h
-    output_d = []
-    decoder.train()
-    for vector in output_e:
-        o, decoder_hidden = decoder.forward(vector, decoder_hidden, lengths)
-        output_d.append(o)
-    print(output_d)
-    decoder.eval()
 
-
-
-vector = java_language.create_vector(all_results[0]['java_ast'])
 
 exit(0)
