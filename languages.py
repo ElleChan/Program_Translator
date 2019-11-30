@@ -24,6 +24,7 @@ class ASTNumbering:
         elif isinstance(tree, dict):
             count += 2
             for key in tree.keys():
+                count += 1
                 if key not in self.words:
                     self.words[key] = Encoding(self.count, type(tree[key]))
                     self.wordcount[key] = 1
@@ -50,8 +51,8 @@ class ASTNumbering:
                 self.wordcount[tree] += 1
         else:
             print(type(tree))
-        if count > self.max_length:
-            self.max_length = count
+        if count + 2 > self.max_length:
+            self.max_length = count + 2
         return count
 
     def create_vector(self, tree):
