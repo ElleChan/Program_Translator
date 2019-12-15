@@ -32,22 +32,10 @@ class EncoderModel(nn.Module):
         #embedded = pack_padded_sequence(embedded, shape, enforce_sorted=False, batch_first=True)
         output_vector, hidden_vector = self.gru(embedded, hidden_vector)
         #output_vector, _ = pad_packed_sequence(output_vector, batch_first=True)
-        output_vector = self.fc(self.relu(output_vector[:,-1]))
+        #output_vector = self.fc(self.relu(output_vector[:,-1]))
         return output_vector, hidden_vector
         
     def initialize_hidden(self):
         return torch.zeros(1, 1, self.dim_hidden)                               # 1, batch_size, hidden_size
 
 
-if __name__ == '__main__':
-    e = EncoderModel(1, 1, 3, 4)
-    e.train()
-    h0 = e.initialize_hidden()
-    input_v = torch.tensor([1])
-    (output, h0) = e.forward(input_v, h0)
-    print(output, "\n", h0)
-    e.eval()
-    h0 = e.initialize_hidden()
-    input_v = torch.tensor([3])
-    (output, h0) = e.forward(input_v, h0)
-    print(output, "\n", h0)
