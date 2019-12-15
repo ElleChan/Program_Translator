@@ -14,7 +14,6 @@ from pprint import pprint
 from decoder import DecoderModel
 from languages import ASTNumbering as ast
 
-
 epochs = 1
 batch_size = 1
 
@@ -51,12 +50,13 @@ train, test = np.split(dataset, np.array([-1000]))
 print("Training Encoder-Decoder")
 with open('temp.txt', 'w') as ofile:
     e = EncoderModel(java_language.max_length, 10, java_language.count)			# Create encoder object.
-    #d = DecoderModel()
+    d = DecoderModel(java_language.count, 10, cs_language.count)						# Create decoder object.
     h = e.initialize_hidden()								# Create initial hidden input.
     objective_func = nn.NLLLoss()       						# Negative Log Likelihood Loss.
     
     # Start training phase.
     e.train()
+    d.train()
    
     for i in range(epochs):
         print("\tEpoch:", i)
@@ -67,13 +67,19 @@ with open('temp.txt', 'w') as ofile:
         for data_point in batch:
              input_vector = data_point['java_ast']
              input_vector = input_vector.long()
+             print(input_vector)
              o, h = e.forward(input_vector, h, java_language.max_length)
              print(input_vector, "->", o)
              
              outputs.append(o)
 
         # Train decoder.
-	
+        for output_vector in outputs:
+            input_vector = output_vector[0]		# Ignore the gradient in the tuple
+            input_vector = input_vector.long()
+            print(len(input_vector))
+            o, h = d.forward(input_vector, h, cs_language.max_length)
+            print (output, "->", o)	
  
     exit()    
 

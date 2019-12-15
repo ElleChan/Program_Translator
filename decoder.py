@@ -7,22 +7,24 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 # Reference: https://github.com/IBM/pytorch-seq2seq/
 #            https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
 class DecoderModel(nn.Module):
-    def __init__(self, output_size, hidden_size):
+    def __init__(self,dim_input, dim_hidden, dim_output, dropout_rate=0.0):
         super(DecoderModel, self).__init__()
-        self.output_size = output_size
-        self.hidden_size = hidden_size
+        self.dim_input = dim_input
+        self.dim_hidden = dim_hidden
+        self.dim_output = dim_output
 
-        self.embedding = nn.Embedding(output_size, hidden_size)
-        self.gru = nn.GRU(hidden_size, hidden_size)
-        self.out = nn.Linear(hidden_size, output_size)
+        self.embedding = nn.Embedding(dim_input+2, dim_output)
+        self.gru = nn.GRU(dim_hidden, dim_hidden, batch_first=True, dropout=dropout_rate)
+        self.out = nn.Linear(dim_hidden, dim_output)
         self.softmax = nn.LogSoftmax(dim=1)
+        self.relu = nn.ReLU()
 
-    def forward(self, input, hidden, shape):
-        embedded = self.embedding(input)
-        embedded = pack_padded_sequence(embedded, shape, batch_first=True, enforce_sorted=False)
+    def forward(self, input_vector, hidden, shape):
+        embedded = self.embedding(input_vector).view(1,1,-1)
+        #embedded = pack_padded_sequence(embedded, shape, batch_first=True, enforce_sorted=False)
         embedded = F.relu(embedded)
         output, hidden = self.gru(embedded, hidden)
-        output = pad_packed_sequence(output, batch_first=True)
+        #output = pad_packed_sequence(output, batch_first=True)
         output = self.softmax(self.out(output[0]))
         return output, hidden
 
