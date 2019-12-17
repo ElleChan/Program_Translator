@@ -14,6 +14,7 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 #	      https://discuss.pytorch.org/t/runtimeerror-input-must-have-3-dimensions-got-2/36974/8
 #             https://pytorch.org/docs/stable/nn.html
 #             https://medium.com/@Petuum/embeddings-a-matrix-of-meaning-4de877c9aa27
+#	      https://discuss.pytorch.org/t/runtimeerror-expected-object-of-scalar-type-long-but-got-scalar-type-float-for-argument-2-mat2/49849/2
 class EncoderModel(nn.Module):
     def __init__(self, dim_input, dim_hidden, dim_output, layer_count=0, dropout_rate=0.0):
         super(EncoderModel, self).__init__()
