@@ -13,7 +13,7 @@ class DecoderModel(nn.Module):
         self.dim_output = dim_output
 
         self.embedding = nn.Embedding(dim_output, dim_input)
-        self.gru = nn.GRU(dim_hidden, dim_hidden, batch_first=True, dropout=dropout_rate)
+        self.gru = nn.GRU(dim_input, dim_hidden, batch_first=True, dropout=dropout_rate)
         self.out = nn.Linear(dim_hidden, dim_output)
         self.softmax = nn.LogSoftmax(dim=1)
         self.relu = nn.ReLU()
@@ -24,7 +24,7 @@ class DecoderModel(nn.Module):
         #embedded = F.relu(input_vector)
         output, hidden = self.gru(input_vector, hidden)
         #output = pad_packed_sequence(output, batch_first=True)
-        output = self.softmax(self.out(output[0]))
+        output = self.softmax(self.out(output))
         return output, hidden
 
     def initHidden(self):

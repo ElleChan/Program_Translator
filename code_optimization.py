@@ -15,7 +15,7 @@ from decoder import DecoderModel
 from languages import ASTNumbering as ast
 
 epochs = 1
-batch_size = 1
+batch_size = 2
 
 paths = ['antlr-data.json', 'itext-data.json', 'jgit-data.json', 'jts-data.json', 'lucene-data.json', 'poi-data.json']
 paths = [join(realpath('.'), 'java2c#', name) for name in paths]
@@ -60,7 +60,7 @@ print("\tLength of testing set is:", len(test))
 print("Training Encoder-Decoder")
 with open('temp.txt', 'w') as ofile:
     e = EncoderModel(java_language.max_length, 10, java_language.count)			# Create encoder object.
-    d = DecoderModel(java_language.count, 10, cs_language.count)			# Create decoder object. THE HIDDEN SIZES BETTER BE THE SAME!!!
+    d = DecoderModel(java_language.count, 10, cs_language.max_length)			# Create decoder object. THE HIDDEN SIZES BETTER BE THE SAME!!!
     h = e.initialize_hidden()								# Create initial hidden input.
     objective_func = nn.NLLLoss()       						# Negative Log Likelihood Loss.
     
@@ -75,7 +75,7 @@ with open('temp.txt', 'w') as ofile:
         # Train encoder.
         outputs = []
         for data_point in batch:
-             input_vector = data_point['java_ast']
+             input_vector = data_point['java_ast'].view(java_language.max_length)	# Get input vector in 1D.
              input_vector = input_vector.long()
              #h = h.long()
              print("\t\tEncoder Datapoint:", input_vector)
@@ -94,7 +94,9 @@ with open('temp.txt', 'w') as ofile:
             o, h = d.forward(input_vector, h, cs_language.max_length)
             print ("\t\t\tOutput vector and size", o, "(", o.size(), ")")
             print ("\t\t\tHidden vector and size", h, "(", h.size(), ")")	
- 
+            print ("\t\t\tIndices not equal to 0:", torch.nonzero(o))
+
+
     exit()    
 
 
