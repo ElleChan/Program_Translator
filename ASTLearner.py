@@ -2,7 +2,7 @@ from languages import ASTNumbering
 import numpy as np
 from numpy.random import choice
 from decoder import DecoderModel
-from encoder import EncoderModel, TransformerModel
+from encoder import EncoderModel
 import torch
 
 class ASTModel:
@@ -50,7 +50,7 @@ class ASTModel:
 
 
 class ASTModelTransformer(ASTModel):
-    def __init__(self, java_language, cs_language, loss_func=torch.nn.Cross(), heads=1, dim_feedforward=2048,
+    def __init__(self, java_language, cs_language, loss_func=torch.nn.CrossEntropyLoss(), heads=1, dim_feedforward=2048,
                  dropout=0.1, activation='relu', number_encoder_layers=1, number_decoder_layers=1):
         print("Creating Transformer Model")
         super().__init__(java_language, cs_language, loss_func)
@@ -115,12 +115,12 @@ class ASTModelTransformer(ASTModel):
                 target = cs_vector[:, :, 1:].contiguous().view(-1)
                 optimizer.zero_grad()
                 print(java_vector.shape, cs_vector.shape)
-                output = self.transformer(java_vector, target)#, cs_vector, input_msk, target_msk)
+                output = self.transformer(java_vector, cs_vector)#, cs_vector, input_msk, target_msk)
                 print(output)
                 print(output.shape)
 
                 print(target.shape)
-                loss = self.loss(output.view(output.size(-1), -1), target)
+                loss = self.loss(output.view(size, -1), target.view(-1).long())
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(self.transformer.parameters(), 0.5)
                 optimizer.step()

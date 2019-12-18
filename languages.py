@@ -63,8 +63,8 @@ class ASTNumbering:
         if(length > self.max_length):
             raise SyntaxError('{} > {}'.format(length, self.max_length))
         final_tree = torch.zeros(1, self.max_length)
-        for i in range(length):
-            final_tree[0, i] = return_tree[i]
+    
+        final_tree[0, :length] = torch.tensor(return_tree)[:]
         return final_tree, length
         
 
