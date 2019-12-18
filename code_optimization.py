@@ -13,6 +13,8 @@ import numpy as np
 from pprint import pprint
 from decoder import DecoderModel
 from languages import ASTNumbering as ast
+from ASTLearner import ASTModelTransformer, ASTModel
+from time import time
 
 epochs = 1
 batch_size = 2
@@ -38,11 +40,13 @@ print("\tMax C# length and total count:", cs_language.max_length, cs_language.co
 
 # Create numerical input vectors.
 print("Converting trees to numerical vectors...")
+start_time = time()
 dataset = []
 for tree in all_results:
-	cs_tree, cs_length = cs_language.create_vector(tree['cs_ast'])
-	java_tree, java_length = java_language.create_vector(tree['java_ast'])
-	dataset.append({'cs_ast': cs_tree, 'java_ast': java_tree})
+    cs_tree, cs_length = cs_language.create_vector(tree['cs_ast'])
+    java_tree, java_length = java_language.create_vector(tree['java_ast'])
+    dataset.append({'cs_ast': cs_tree, 'java_ast': java_tree})
+print("\tSeconds to complete: {}".format(round(time() - start_time, 2)))
 print("\tLength of data set is:", len(dataset))
 print("\tShape of first Java vector is:", dataset[0]['java_ast'], '->', dataset[0]['java_ast'].size())
 print("\tShape of first C# vector is:", dataset[0]['cs_ast'], '->', dataset[0]['cs_ast'].size())
@@ -54,6 +58,17 @@ np.random.shuffle(dataset)
 train, test = np.split(dataset, np.array([-1000]))
 print("\tLength of training set is:", len(train))
 print("\tLength of testing set is:", len(test))
+
+
+#traditional = ASTModel(java_language, cs_language)
+transformer = ASTModelTransformer(java_language, cs_language)
+
+
+transformer.train(train, epochs, batch_size, True)
+
+transformer.eval([x['java_ast'] for x in test], [x['cs_ast'] for x in test])
+
+#traditional.train(train, epochs, batch_size, True)
 
 
 # Train and evaluate.
@@ -71,7 +86,7 @@ with open('temp.txt', 'w') as ofile:
     for i in range(epochs):
         print("\tEpoch:", i)
         batch = np.random.choice(train, size=batch_size) 		    		# Create subset of training set for actual training.
-	
+
         # Train encoder.
         outputs = []
         for data_point in batch:
@@ -97,12 +112,10 @@ with open('temp.txt', 'w') as ofile:
             print ("\t\t\tIndices not equal to 0:", torch.nonzero(o))
 
 
-    exit()    
+    exit()
 
 
     print("Testing Encoder-Decoder")
     e.eval()
-
-
 
 exit(0)

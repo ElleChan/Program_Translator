@@ -60,13 +60,12 @@ class ASTNumbering:
         self._get_elements(tree, return_tree)
         return_tree.append(1)
         length = len(return_tree)
-        if(length > self.max_length):
+        if length > self.max_length:
             raise SyntaxError('{} > {}'.format(length, self.max_length))
-        final_tree = torch.zeros(1, self.max_length)
-        for i in range(length):
-            final_tree[0, i] = return_tree[i]
+        final_tree = torch.zeros(1, self.max_length) - 1
+
+        final_tree[0, :length] = torch.tensor(return_tree).long()[:]
         return final_tree, length
-        
 
     def _get_elements(self, tree, final_list):
         if isinstance(tree, list):
