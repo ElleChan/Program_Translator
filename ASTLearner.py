@@ -9,11 +9,11 @@ class ASTModel:
     def __init__(self, java_language, cs_language, loss_func=torch.nn.NLLLoss()):
         self.java_language = java_language
         self.cs_language = cs_language
-        self.encoder = EncoderModel(java_language.max_length, java_language.max_length, 1)
-        self.decoder = DecoderModel(java_language.max_length, java_language.max_length, 1)
+        #self.encoder = EncoderModel(java_language.max_length, java_language.max_length, 1)
+        #self.decoder = DecoderModel(java_language.max_length, java_language.max_length, 1)
         self.loss = loss_func
-        self._hidden_encoder = self.encoder.initialize_hidden()
-        self._hidden_decoder = 0
+        #self._hidden_encoder = self.encoder.initialize_hidden()
+        #self._hidden_decoder = 0
         
     def train(self, train_data, epochs, batch_size, verbose=False):
         #train_data = [self._prepare_data(x) for x in train_data]
@@ -56,7 +56,7 @@ class ASTModelTransformer(ASTModel):
         super().__init__(java_language, cs_language, loss_func)
         self.transformer = torch.nn.Transformer(java_language.count, heads, number_encoder_layers,
                                                 number_decoder_layers, dim_feedforward, dropout, activation)
-        self.transformer = TransformerModel(java_language.count, java_language.max_length, heads, dim_feedforward, number_encoder_layers, dropout)
+        #self.transformer = TransformerModel(java_language.count, java_language.max_length, heads, dim_feedforward, number_encoder_layers, dropout)
 
 
 
@@ -92,15 +92,14 @@ class ASTModelTransformer(ASTModel):
         for run_number in range(epochs):
             for i in self._create_batch(java_train, batch_size):
                 java_vector = java_train[i]
-                java_vector = java_vector.view((1, 1, -1))
+                java_vector = java_vector.view((1, 1, -1)).long()
 
                 input_msk = None
                 # input_seq = java_vector.transpose(0,1)
                 # input_msk = (input_seq != -1).unsqueeze(1)
 
                 cs_vector = cs_train[i]
-                cs_vector = cs_vector.view((1, 1, -1))
-
+                cs_vector = cs_vector.view((1, 1, -1)).long()
                 target_msk = None
                 # target_seq = cs_vector.transpose(0,1)
                 # target_msk = (input_seq != -1).unsqueeze(1)
@@ -116,12 +115,12 @@ class ASTModelTransformer(ASTModel):
                 target = cs_vector[:, :, 1:].contiguous().view(-1)
                 optimizer.zero_grad()
                 print(java_vector.shape, cs_vector.shape)
-                output = self.transformer(java_vector)#, cs_vector, input_msk, target_msk)
+                output = self.transformer(java_vector, target)#, cs_vector, input_msk, target_msk)
                 print(output)
                 print(output.shape)
 
                 print(target.shape)
-                loss = self.loss(output.view(-1, output.size(-1)), target.squeeze())
+                loss = self.loss(output.view(output.size(-1), -1), target)
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(self.transformer.parameters(), 0.5)
                 optimizer.step()
