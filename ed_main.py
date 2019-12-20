@@ -19,8 +19,8 @@ EOS_token = 1
 # Hyperparameters
 TEACHER_FORCING_RATIO = 0.5
 BATCH_SIZE = 10
-EPOCHS = 100
-HIDDEN_SIZE=5
+EPOCHS = 10
+HIDDEN_SIZE=50
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
