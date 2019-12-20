@@ -19,7 +19,7 @@ EOS_token = 1
 # Hyperparameters
 TEACHER_FORCING_RATIO = 0.5
 BATCH_SIZE = 10
-EPOCHS = 10
+EPOCHS = 1000
 HIDDEN_SIZE=5
 
 
@@ -96,6 +96,8 @@ def trainModel(model, train_set, epochs=10):
      batch = np.random.choice(train, size=epochs)
      #batch = [tensorsFromPair(train_x, train_y, random.choice(batch_size))for i in range(epochs)]
 
+     handle = open('loss_data.txt', 'w')
+
      for epoch in range(1, epochs+1):
         training_pair = batch[epoch - 1]
         print("\t\tEpoch", epoch)
@@ -103,14 +105,15 @@ def trainModel(model, train_set, epochs=10):
         y = training_pair['cs_ast']
 
         loss = calcModel(model, x, y, optimizer, criterion)
+        handle.write('%.5f\n' % loss)
         total_loss_iterations += loss
         print("\t\t\tLoss:", loss, "\tTotal loss:", total_loss_iterations)
         if epoch % 5000 == 0:
            avarage_loss= total_loss_iterations / 5000
            total_loss_iterations = 0
            print('%d %.4f' % (epochs, avarage_loss))
-
      #torch.save(model.state_dict(), 'mytraining.pt')
+     handle.close()
      return model
 
 def evaluate(model, test_point):
@@ -119,16 +122,24 @@ def evaluate(model, test_point):
         actual_vector = test_point['cs_ast']
         decoded_words = []
 
-        output = model(input_vector, actual_vector)
+        output = model(input_vector, actual_vector).long()
         print('\toutput {}'.format(output), "Size:", output.size())
-        #for ot in range(output.size(0)):
-        for ot in range(output.size(1)):
+        for ot in range(output.size(0)):
+        #for ot in range(output.size(1)):
            topv, topi = output[0][ot].topk(1)
            if topi[0].item() == EOS_token:
                decoded_words.append('<EOS>')
                break
            else:
-               decoded_words.append(cs_language.convert_back[topi[0].item()])
+              decoded_words.append(cs_language.convert_back[topi[0].item()])
+        #output = output[0]
+        #for row in output:
+        #   topv, topi = output[row].topk(1)
+        #   if topi[0].item() == EOS_token:
+        #       decoded_words.append('End')
+        #       break
+        #   else:
+        #      decoded_words.append(cs_language.convert_back[topi[0].item()])
      return decoded_words
 
 
@@ -140,6 +151,7 @@ def evaluateRandomly(model, test_set, number=10):
          output_words = evaluate(model, tp)
          output_sentence = ' '.join(output_words)
          print('\tpredicted {}'.format(output_sentence))
+         print(len(output_sentence))
 
 print("Training...")
 print("\tCreating initial models...")
