@@ -51,6 +51,7 @@ class Decoder(nn.Module):
 
       def forward(self, input_vector, hidden_vector):
             input_vector = input_vector.view(1,-1)
+            input_vector = input_vector.long().cuda()
             embedded = F.relu(self.embedding(input_vector))
             output, hidden = self.gru(embedded)
             prediction = self.softmax(self.out(output[0]))
@@ -76,6 +77,7 @@ class Seq2Seq(nn.Module):
                 encoder_output, encoder_hidden = self.encoder(src[i])    
             decoder_hidden = encoder_hidden.to(device)
             decoder_input = torch.tensor([SOS_token], device=device)
+            #decoder_input = encoder_output
             for t in range(target_length):   
                 decoder_output, decoder_hidden = self.decoder(decoder_input, decoder_hidden)
                 outputs[t] = decoder_output

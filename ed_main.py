@@ -19,7 +19,7 @@ EOS_token = 1
 # Hyperparameters
 TEACHER_FORCING_RATIO = 0.5
 BATCH_SIZE = 10
-EPOCHS = 1000
+EPOCHS = 100
 HIDDEN_SIZE=5
 
 
@@ -148,6 +148,16 @@ def evaluateRandomly(model, test_set, number=10):
      for tp in test_points:
          print('\tsource {}'.format(tp['java_ast']))
          print('\ttarget {}'.format(tp['cs_ast']))
+         
+         tree=[]
+         for token in tp['java_ast'][0]:
+             tree.append(java_language.convert_back[token.item()])
+         print('\source tree {}'.format(' '.join(tree)))
+         tree = []
+         for token in tp['cs_ast'][0]:
+             tree.append(cs_language.convert_back[token.item()])
+         print('target tree {}'.format(' '.join(tree)))
+         
          output_words = evaluate(model, tp)
          output_sentence = ' '.join(output_words)
          print('\tpredicted {}'.format(output_sentence))
