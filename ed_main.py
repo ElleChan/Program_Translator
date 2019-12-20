@@ -19,7 +19,7 @@ EOS_token = 1
 # Hyperparameters
 TEACHER_FORCING_RATIO = 0.5
 BATCH_SIZE = 10
-EPOCHS = 2
+EPOCHS = 10
 HIDDEN_SIZE=5
 
 
@@ -120,14 +120,14 @@ def evaluate(model, test_point):
         decoded_words = []
 
         output = model(input_vector, actual_vector)
-        print('\toutput {}'.format(output))
-        for ot in range(output.size(0)):
-           topv, topi = output[ot].topk(1)
+        print('\toutput {}'.format(output), "Size:", output.size())
+        #for ot in range(output.size(0)):
+        for ot in range(output.size(1)):
+           topv, topi = output[0][ot].topk(1)
            if topi[0].item() == EOS_token:
                decoded_words.append('<EOS>')
                break
            else:
-               print(topi[0])
                decoded_words.append(cs_language.convert_back[topi[0].item()])
      return decoded_words
 
